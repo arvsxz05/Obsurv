@@ -1,0 +1,2 @@
+# Obsurv
+## Social Networking Sites, nowadays, only focuses on how people can express and present themselves freely to a group of friends or people. There’s really just few SNS (like ask.fm) that let the user realize what are the opinion of the people towards him or her. This webapp that we will propose will be an another face of online social media. This will initiate interactions through polls and survey to help the user decide on things that need the people’s opinion. The user can create their own polls and can custom share it to a group of people he/she wanted to answer.
