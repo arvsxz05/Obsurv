@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 
 # Create your models here.
 
@@ -9,6 +10,11 @@ class Survey_Questions(models.Model) :
 	multiple_answer = models.BooleanField(default=True)
 	user_owner = models.ForeignKey(User, related_name='Surveys')
 	no_of_respondents = models.IntegerField(default=0)
+	end_date = models.DateTimeField()
+
+	def clean(self):
+		if self.end_date is None or self.end_date <= self.when_created:
+			raise ValidationError('End Date and Time should be later than the Date and Time the survey was created.')
 
 	def __str__(self):
 		return self.question_text

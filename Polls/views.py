@@ -2,10 +2,17 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
+from django.utils import timezone
 
+from Polls.models import Survey_Questions, Survey_Choices, Responses
 
 def index(request):
-    return HttpResponse("Hello, world. You're at the polls index.")
+	if request.user.is_authenticated :
+		context = {
+			'questions': Survey_Questions.objects.filter(end_date__gt=timezone.now())
+		}
+		return render(request, 'homepage.html', context=context)
+	return redirect(login_view)
 
 def signup_view(request):
 	context = {
