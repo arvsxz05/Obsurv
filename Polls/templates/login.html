@@ -1,45 +1,45 @@
 {% load static %}
 <html>
 <head>
-  <title>Log-in</title>
-  <link rel="stylesheet" href="{% static 'css/login.css' %}">
+    <title>Log-in</title>
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
 </head>
 <body>
-  <script type="text/javascript" src="{% static 'js/login.js' %}"></script>
-  <div class="login-page">
-    <div class="form">
-      <form class="register-form" action="{% url 'signup' %}" method="POST">
-        {% csrf_token %}
-        <input type="text" placeholder="first name" name="first_name" value="{{ first_name }}"/>
-        <input type="text" placeholder="last name" name="last_name" value="{{ last_name }}"/>
-        <input type="username" placeholder="username" name="username"/>
-        <input type="password" placeholder="password" name="password"/>
-        <input type="password" placeholder="confirm password" name="confirm"/>
-        <input type="text" placeholder="email address" name="email"/>
-        {{ error_message }}
-        <button>create</button>
-        <p class="message">Already registered? <a href="{% url 'login' %}">Sign In</a></p>
-      </form>
-      <form class="login-form" action="{% url 'login' %}" method="POST">
-        {% csrf_token %}
-        <input type="text" placeholder="username" name="username" id="username" value="{{ username }}"/>
-        <input type="password" placeholder="password" name="password" id="password"/>
-        {{ error_message }}
-        {{ success }}
-        <button>login</button>
-        <p class="message">Not registered? <a href="{% url 'signup' %}">Create an account</a></p>
-      </form>
+    <script type="text/javascript" src="{% static 'js/login.js' %}"></script>
+    <div class="login-page">
+        <div class="form">
+            <form class="register-form" action="{% url 'signup' %}" method="POST">
+                {% csrf_token %}
+                <input type="text" placeholder="first name" name="first_name" value="{{ first_name }}"/>
+                <input type="text" placeholder="last name" name="last_name" value="{{ last_name }}"/>
+                <input type="username" placeholder="username" name="username"/>
+                <input type="password" placeholder="password" name="password"/>
+                <input type="password" placeholder="confirm password" name="confirm"/>
+                <input type="text" placeholder="email address" name="email"/>
+                {{ error_message }}
+                <button>create</button>
+                <p class="message">Already registered? <a href="{% url 'login' %}">Sign In</a></p>
+            </form>
+            <form class="login-form" action="{% url 'login' %}" method="POST">
+                {% csrf_token %}
+                <input type="text" placeholder="username" name="username" id="username" value="{{ username }}"/>
+                <input type="password" placeholder="password" name="password" id="password"/>
+                {{ error_message }}
+                {{ success }}
+                <button>login</button>
+                <p class="message">Not registered? <a href="{% url 'signup' %}">Create an account</a></p>
+            </form>
+        </div>
     </div>
-  </div>
-  <script type="text/javascript">
-    var register = document.getElementsByClassName("register-form")[0];
-    var login = document.getElementsByClassName("login-form")[0];
-    if({{ type }} == 0) {
-      login.style.display = "none";
-    }
-    if({{ type }} == 1) {
-      register.style.display = "none";
-    }
-  </script>
+    <script type="text/javascript">
+        var register = document.getElementsByClassName("register-form")[0];
+        var login = document.getElementsByClassName("login-form")[0];
+        if({{ type }} == 0) {
+            login.style.display = "none";
+        }
+        if({{ type }} == 1) {
+            register.style.display = "none";
+        }
+    </script>
 </body>
 </html>
