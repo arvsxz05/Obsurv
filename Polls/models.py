@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 
 # Create your models here.
 
@@ -13,7 +14,7 @@ class Survey_Questions(models.Model) :
 	end_date = models.DateTimeField()
 
 	def clean(self):
-		if self.end_date is None or self.end_date <= self.when_created:
+		if self.end_date is None or self.end_date <= timezone.now():
 			raise ValidationError('End Date and Time should be later than the Date and Time the survey was created.')
 
 	def __str__(self):

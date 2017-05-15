@@ -6,40 +6,42 @@
 </head>
 <body>
     <script type="text/javascript" src="{% static 'js/login.js' %}"></script>
-    <div class="login-page">
-        <div class="form">
-            <form class="register-form" action="{% url 'signup' %}" method="POST">
-                {% csrf_token %}
-                <input type="text" placeholder="first name" name="first_name" value="{{ first_name }}"/>
-                <input type="text" placeholder="last name" name="last_name" value="{{ last_name }}"/>
-                <input type="username" placeholder="username" name="username"/>
-                <input type="password" placeholder="password" name="password"/>
-                <input type="password" placeholder="confirm password" name="confirm"/>
-                <input type="text" placeholder="email address" name="email"/>
-                {{ error_message }}
-                <button>create</button>
-                <p class="message">Already registered? <a href="{% url 'login' %}">Sign In</a></p>
-            </form>
-            <form class="login-form" action="{% url 'login' %}" method="POST">
-                {% csrf_token %}
-                <input type="text" placeholder="username" name="username" id="username" value="{{ username }}"/>
-                <input type="password" placeholder="password" name="password" id="password"/>
-                {{ error_message }}
-                {{ success }}
-                <button>login</button>
-                <p class="message">Not registered? <a href="{% url 'signup' %}">Create an account</a></p>
-            </form>
+    <div id="parent">
+        <div id="wide">
+            <div class="logo-page">
+                <div class="logo-content">
+                    <img src="{% static 'img/logo.png' %}"><br>
+                    Create <strong>surveys</strong> and <strong>polls</strong> that match your <strong>budget</strong> and <strong>vision</strong>. <br><strong><i>Obsurv</i></strong> and meet new people.
+                </div>
+            </div>
+        </div>
+        <div id="narrow">
+            <div class="login-page">
+                <div class="form">
+                    <form class="login-form" action="{% url 'login' %}" method="POST">
+                        {% csrf_token %}
+                        <input type="text" placeholder="Username" name="username" id="username" value="{{ username }}"/>
+                        <input type="password" placeholder="Password" name="password" id="password"/>
+                        <p class="error">{{ error_message }}</p>
+                        {{ success }}
+                        <button>login</button>
+                    </form>
+                </div>
+                <div class="form">
+                    <form class="register-form" action="{% url 'signup' %}" method="POST">
+                        {% csrf_token %}
+                        <input type="text" placeholder="First Name" name="first_name" value="{{ first_name }}"/>
+                        <input type="text" placeholder="Last Name" name="last_name" value="{{ last_name }}"/>
+                        <input type="username" placeholder="Username" name="username"/>
+                        <input type="password" placeholder="Password" name="password"/>
+                        <input type="password" placeholder="Confirm Password" name="confirm"/>
+                        <input type="text" placeholder="E-mail Address" name="email"/>
+                        <button>create</button>
+                        <!-- <p class="message">Already registered? <a href="{% url 'login' %}">Sign In</a></p> -->
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
-    <script type="text/javascript">
-        var register = document.getElementsByClassName("register-form")[0];
-        var login = document.getElementsByClassName("login-form")[0];
-        if({{ type }} == 0) {
-            login.style.display = "none";
-        }
-        if({{ type }} == 1) {
-            register.style.display = "none";
-        }
-    </script>
 </body>
 </html>

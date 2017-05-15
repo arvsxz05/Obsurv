@@ -21,6 +21,7 @@
 			</div>
 		</nav>
 	</div>
+	<center><h1>Welcome to Obsurv, {{ request.user.username }}</h1></center>
 	<div class="row container">
 		<div class="card">
 			<div class="card-content">
@@ -38,11 +39,10 @@
 	        	</ul>
 		    </div>
 		    <div class="card-action">
-				<button class="waves-effect waves-light btn"><i class="material-icons left">assessment</i>Respond</button>
+				<button class="waves-effect waves-light btn"><i class="material-icons left">assessment</i>Create Poll</button>
 			</div>
 		</div>
 	</div>
-	<center><h1>Welcome to Obsurv, {{ request.user.username }}</h1></center>
 	
 	{% for temp_question in questions %}
         <div class="row">

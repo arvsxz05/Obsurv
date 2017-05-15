@@ -1,6 +1,6 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, reverse
 from django.http import HttpResponse
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.utils import timezone
 
@@ -49,8 +49,7 @@ def signup_view(request):
 
 def login_view(request):
 	if request.user.is_authenticated :
-		print(request.user.first_name)
-		return redirect('index')
+		return redirect(reverse('profile', kwargs={"username":request.user.username}))
 	context = {
 		'type': 1
 	}
@@ -61,9 +60,22 @@ def login_view(request):
 		user = authenticate(username=username, password=password)
 		if user is not None:
 			login(request, user)
-			return redirect('index')
+			return redirect(reverse('profile', kwargs={"username":username}))
 		else:
 			context['error_message'] = 'wrong username or password'
 			context['username'] = username
 
 	return render(request, 'login.html', context=context)
+
+def logout_view(request):
+	logout(request)
+	return redirect(login_view)
+
+def profile_view (request, username):
+	if not request.user.is_authenticated:
+		return redirect ('login')
+	else:
+		context = {
+			'username' : username
+		}
+		return render(request, 'profile.html', context=context)
