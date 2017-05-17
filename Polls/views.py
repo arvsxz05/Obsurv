@@ -1,15 +1,16 @@
-from django.shortcuts import render, redirect, reverse
+from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.utils import timezone
+import datetime
 
 from Polls.models import Survey_Questions, Survey_Choices, Responses
 
 def index(request):
 	if request.user.is_authenticated :
 		context = {
-			'questions': Survey_Questions.objects.filter(end_date__gt=timezone.now())
+			'questions': Survey_Questions.objects.filter(end_date__gt=datetime.datetime.now())
 		}
 		return render(request, 'homepage.html', context=context)
 	return redirect(login_view)
@@ -74,8 +75,42 @@ def logout_view(request):
 def profile_view (request, username):
 	if not request.user.is_authenticated:
 		return redirect ('login')
-	else:
-		context = {
-			'username' : username
-		}
-		return render(request, 'profile.html', context=context)
+	user = get_object_or_404(User, username=username)
+	context = {
+		'username' : user.username
+	}
+	return render(request, 'profile.html', context=context)
+
+def post_poll(request):
+	if not request.user.is_authenticated:
+		return redirect ('login')
+	context = {}
+	if request.method == "POST":
+		question = request.POST.get('question')
+		context["question"] = question
+		try:
+			no_of_choices = int(request.POST.get('no_of_choices'))
+		except ValueError:
+			context['error'] = "Please include a question and 2 or more choices."
+			return render(request, "homepage.html", context=context)
+		if no_of_choices < 2:
+			context['error'] = "Please include a question and 2 or more choices."
+			return render(request, "homepage.html", context=context)
+		i = 0
+		choices = [None]*no_of_choices
+		while i < no_of_choices:
+			name_str = 'id' + str(i)
+			choices[i] = request.POST.get(name_str)
+			i += 1
+		multiple = request.POST.get("multiple")
+		multiple = True if multiple == "on" else False
+		end_date = datetime.datetime.strptime(request.POST.get("end_date"), "%d %B, %Y").date()
+		end_time = datetime.datetime.strptime(request.POST.get("end_time"), "%I:%M%p").time()
+		end_datetime = datetime.datetime.combine(end_date, end_time)
+		if end_datetime < datetime.datetime.now():
+			context['error'] = datetime.datetime.now()
+			return render(request, 'homepage.html', context=context)
+		question_object = Survey_Questions.objects.create(user_owner=request.user, question_text=question, multiple_answer=multiple, end_date=end_datetime)
+		for choice in choices:
+			Survey_Choices.objects.create(question=question_object, choice_text=choice)
+	return redirect('index')
