@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block styles %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/editprofile.css' %}">
+{% endblock %}
+
+
+{% block content %}
+    <center>
+        <br>
+        <div class="pic2">
+            <form method="POST" action="{% url 'edit' request.user.username %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="container">
+                    <img src="{{ request.user.profile.avatar_url }}" alt="Avatar" class="image" style="width:100%" id="img-show">
+                    <div class="middle">
+                        <div class="text" id="center-clickable">Change Avatar</div>
+                        <div style="display: none;">{{ form.avatar }}</div>
+                    </div>
+                </div>
+                <br><br>
+            
+                <div class="row">
+                    <div class="input-field col s6">
+                        <!-- <input id="first_name" name="first_name" type="text" class="validate" value="{{ user.first_name }}" required> -->
+                        <label for="first_name">First Name</label>
+                        {{ form.first_name }}
+                    </div>
+                    <div class="input-field col s6">
+                        <!-- <input id="last_name" name="last_name" type="text" class="validate" value="{{ user.last_name }}" required> -->
+                        <label for="last_name">Last Name</label>
+                        {{ form.last_name }}
+                    </div>
+                </div>
+                <div class="input-field col s6">
+                    <!-- <input id="email" name="email" type="text" class="validate" value="{{ user.email }}" required> -->
+                    <label for="email">E-mail</label>
+                    {{ form.email }}
+                </div>
+                <div class="input-field col s6">
+                    <input id="username" type="text" class="validate" value="{{ request.user.username }}" disabled="true">
+                    <label for="username">Username</label>
+                </div>
+                <!-- <div class="col s6"> -->
+                <h6 class="error">{{ form.errors }}</h6>
+                <!-- </div> -->
+                <center>
+                    <button class="btn waves-effect waves-light" type="submit" name="action">Save<i class="material-icons right">send</i></button>
+                </center>
+            </form>
+        </div>
+    </center>
+{% endblock %}
+
+{% block js %}
+    <script type="text/javascript">
+        $("#center-clickable").click(function() {
+            $("#id_avatar").click();
+        });
+
+        // $("#id-avatar").change(function () {
+        //     $("#img-show").attr("src",$("#id-avatar").val());
+        // });
+    </script>
+    <script type="text/javascript">
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                $('#img-show').attr('src', e.target.result);
+            }
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    $("#id_avatar").change(function(){
+        readURL(this);
+        console.log($("#id_avatar").val())
+    });
+    </script>
+{% endblock %}

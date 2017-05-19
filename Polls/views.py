@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
+from django.http import JsonResponse
+from Polls.forms import UserInfoForm
 from django.utils import timezone
 import datetime
 
@@ -9,8 +11,66 @@ from Polls.models import Survey_Questions, Survey_Choices, Responses
 
 def index(request):
 	if request.user.is_authenticated :
+		if request.method == "POST":
+			question = request.POST.get('question')
+
+			# in case the no_of_choices field is not recognizable or not in integer form
+			try:
+				no_of_choices = int(request.POST.get('no_of_choices'))
+			except ValueError:
+				context["question"] = question
+				context['error'] = "Please include a question and 2 or more choices."
+				return render(request, "homepage.html", context=context)
+
+			# if the number of choices on the form is less than 2
+
+			if no_of_choices < 2:
+				context["question"] = question
+				context['error'] = "Please include 2 or more choices."
+				return render(request, "homepage.html", context=context)
+
+			# we store in an array all the choices in the form, the number which was indicated by the no_of_choices field
+			i = 0
+			choices = [None]*no_of_choices
+			while i < no_of_choices:
+				name_str = 'id' + str(i)
+				choices[i] = request.POST.get(name_str)
+				i += 1
+
+			# if the user opted to make the survey answerable by one or may choices
+			multiple = request.POST.get("multiple")
+			multiple = True if multiple == "on" else False
+
+			# if there is no end date provided
+			if request.POST.get("end_date") == None or request.POST.get("end_date") == "":
+				context["question"] = question
+				context['error'] = "Please include an end date."
+				return render(request, "homepage.html", context=context)
+
+			# get the equivalent date and time for the string input of the template
+			end_date = datetime.datetime.strptime(request.POST.get("end_date"), "%d %B, %Y").date()
+			end_time = datetime.datetime.strptime(request.POST.get("end_time"), "%I:%M%p").time()
+			end_datetime = datetime.datetime.combine(end_date, end_time)
+
+			# if the timestamp provided is earlier than the poll was created
+			if end_datetime < datetime.datetime.now():
+				context["question"] = question
+				context['error'] = datetime.datetime.now()
+				return render(request, 'homepage.html', context=context)
+
+			question_object = Survey_Questions.objects.create(user_owner=request.user, question_text=question, multiple_answer=multiple, end_date=end_datetime)
+			for choice in choices:
+				Survey_Choices.objects.create(question=question_object, choice_text=choice)
+
+		questions = []
+		question_objects = Survey_Questions.objects.filter(end_date__gt=datetime.datetime.now()).order_by("-when_created")
+		for question in zip(*[iter(question_objects)]*2):
+			questions.append(question)
+		if len(question_objects)%2 == 1 :
+			questions.append((question_objects[len(question_objects)-1], None))
 		context = {
-			'questions': Survey_Questions.objects.filter(end_date__gt=datetime.datetime.now())
+			'questions': questions,
+			'username': request.user.username
 		}
 		return render(request, 'homepage.html', context=context)
 	return redirect(login_view)
@@ -81,36 +141,73 @@ def profile_view (request, username):
 	}
 	return render(request, 'profile.html', context=context)
 
-def post_poll(request):
-	if not request.user.is_authenticated:
-		return redirect ('login')
-	context = {}
-	if request.method == "POST":
-		question = request.POST.get('question')
-		context["question"] = question
-		try:
-			no_of_choices = int(request.POST.get('no_of_choices'))
-		except ValueError:
-			context['error'] = "Please include a question and 2 or more choices."
-			return render(request, "homepage.html", context=context)
-		if no_of_choices < 2:
-			context['error'] = "Please include a question and 2 or more choices."
-			return render(request, "homepage.html", context=context)
-		i = 0
-		choices = [None]*no_of_choices
-		while i < no_of_choices:
-			name_str = 'id' + str(i)
-			choices[i] = request.POST.get(name_str)
-			i += 1
-		multiple = request.POST.get("multiple")
-		multiple = True if multiple == "on" else False
-		end_date = datetime.datetime.strptime(request.POST.get("end_date"), "%d %B, %Y").date()
-		end_time = datetime.datetime.strptime(request.POST.get("end_time"), "%I:%M%p").time()
-		end_datetime = datetime.datetime.combine(end_date, end_time)
-		if end_datetime < datetime.datetime.now():
-			context['error'] = datetime.datetime.now()
-			return render(request, 'homepage.html', context=context)
-		question_object = Survey_Questions.objects.create(user_owner=request.user, question_text=question, multiple_answer=multiple, end_date=end_datetime)
-		for choice in choices:
-			Survey_Choices.objects.create(question=question_object, choice_text=choice)
-	return redirect('index')
+def validate_username(request):
+    username = request.GET.get('username', None)
+    data = {
+        'is_taken': User.objects.filter(username__iexact=username).exists()
+    }
+    return JsonResponse(data)
+
+def edit_view (request, username):
+	if not request.user.is_authenticated :
+		return redirect(login_view)
+
+	if request.user.username != username :
+		return redirect(reverse('page_404'))
+
+	if request.method == 'POST':
+		# first_name = request.POST.get('first_name')
+		# last_name = request.POST.get('last_name')
+		# email = request.POST.get('email')
+		form = UserInfoForm(request.POST, request.FILES, instance=request.user)
+		if form.is_valid():
+			form.save()
+			return redirect(reverse('profile', kwargs={'username': request.user.username}))
+	else:
+		form = UserInfoForm(instance=request.user)
+
+	context = {
+		'form': form,
+		'username': request.user.username
+	}
+	return render(request, 'edit_profile.html', context=context)
+	# context = {
+	# 	'username' : username,
+	# 	'user': user
+	# }
+	# return render(request, 'edit_profile.html', context=context)
+	
+
+# def post_poll(request):
+# 	if not request.user.is_authenticated:
+# 		return redirect ('login')
+# 	context = {}
+# 	if request.method == "POST":
+# 		question = request.POST.get('question')
+# 		context["question"] = question
+# 		try:
+# 			no_of_choices = int(request.POST.get('no_of_choices'))
+# 		except ValueError:
+# 			context['error'] = "Please include a question and 2 or more choices."
+# 			return render(request, "homepage.html", context=context)
+# 		if no_of_choices < 2:
+# 			context['error'] = "Please include a question and 2 or more choices."
+# 			return render(request, "homepage.html", context=context)
+# 		i = 0
+# 		choices = [None]*no_of_choices
+# 		while i < no_of_choices:
+# 			name_str = 'id' + str(i)
+# 			choices[i] = request.POST.get(name_str)
+# 			i += 1
+# 		multiple = request.POST.get("multiple")
+# 		multiple = True if multiple == "on" else False
+# 		end_date = datetime.datetime.strptime(request.POST.get("end_date"), "%d %B, %Y").date()
+# 		end_time = datetime.datetime.strptime(request.POST.get("end_time"), "%I:%M%p").time()
+# 		end_datetime = datetime.datetime.combine(end_date, end_time)
+# 		if end_datetime < datetime.datetime.now():
+# 			context['error'] = datetime.datetime.now()
+# 			return render(request, 'homepage.html', context=context)
+# 		question_object = Survey_Questions.objects.create(user_owner=request.user, question_text=question, multiple_answer=multiple, end_date=end_datetime)
+# 		for choice in choices:
+# 			Survey_Choices.objects.create(question=question_object, choice_text=choice)
+# 	return redirect('index')
