@@ -13,6 +13,6 @@ urlpatterns = [
     url(r'^(?P<username>\w+)/$', views.profile_view, name='profile'),
     url(r'^validate-username/$', views.validate_username, name='validate_username'),
     url(r'^edit/(?P<username>\w+)$', views.edit_view, name='edit'),
+    url(r'^respond/(?P<question_id>\d+)$', views.respond, name='respond'),
     url(r'^404/$', page_not_found, name="page_404"),
-    # url(r'^post-poll/$', views.post_poll, name='post_poll'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

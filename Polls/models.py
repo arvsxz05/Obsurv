@@ -9,7 +9,7 @@ from django.contrib.staticfiles.templatetags.staticfiles import static
 class Survey_Questions(models.Model) :
 	question_text = models.CharField(max_length=200)
 	when_created = models.DateTimeField(auto_now_add=True)
-	multiple_answer = models.BooleanField(default=True)
+	multiple_answer = models.BooleanField(default=False)
 	user_owner = models.ForeignKey(User, related_name='Surveys')
 	no_of_respondents = models.IntegerField(default=0)
 	end_date = models.DateTimeField()
@@ -34,7 +34,7 @@ class Responses(models.Model) :
 	user_owner = models.ForeignKey(User, related_name='Responses')
 
 	def __str__(self):
-		return self.user_owner.username + " : " + self.question.question_text
+		return self.user_owner.username + " : " + self.question.question_text + " : " + self.choice.choice_text
 
 def avatar_upload_path(instance, filename):
     return './storage/{}_{}'.format(instance.owner.username, filename)
