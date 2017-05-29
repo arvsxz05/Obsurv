@@ -7,12 +7,29 @@ from django.contrib.staticfiles.templatetags.staticfiles import static
 # Create your models here.
 
 class Survey_Questions(models.Model) :
+	COLOR_PALLETE = (
+	    ('#D98880', 'red'),
+	    ('#F1948A', 'pink'),
+	    ('#C39BD3', 'purple'),
+	    ('#BB8FCE', 'violet'),
+	    ('#7FB3D5', 'blue'),
+	    ('#85C1E9', 'light-blue'),
+	    ('#76D7C4', 'light-blue-green'),
+	    ('#73C6B6', 'blue-green'),
+	    ('#7DCEA0', 'green'),
+	    ('#82E0AA', 'light-green'),
+	    ('#F7DC6F', 'yellow'),
+	    ('#F8C471', 'yellow-orange'),
+	    ('#F0B27A', 'light-orange'),
+	    ('#E59866', 'orange')
+	)
+
 	question_text = models.CharField(max_length=200)
 	when_created = models.DateTimeField(auto_now_add=True)
 	multiple_answer = models.BooleanField(default=False)
 	user_owner = models.ForeignKey(User, related_name='Surveys')
-	no_of_respondents = models.IntegerField(default=0)
 	end_date = models.DateTimeField()
+	card_color = models.CharField(max_length=7, choices=COLOR_PALLETE, default='#D98880')
 
 	def clean(self):
 		if self.end_date is None or self.end_date <= timezone.now():

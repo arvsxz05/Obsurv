@@ -14,5 +14,6 @@ urlpatterns = [
     url(r'^validate-username/$', views.validate_username, name='validate_username'),
     url(r'^edit/(?P<username>\w+)$', views.edit_view, name='edit'),
     url(r'^respond/(?P<question_id>\d+)$', views.respond, name='respond'),
+    url(r'^get-answers/(?P<question_id>\d+)$', views.get_answers, name='get_answers'),
     url(r'^404/$', page_not_found, name="page_404"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -1,31 +1,155 @@
 {% extends "base.html" %}
 
 {% block styles %}
-    <style type="text/css">
-        #user-graphics {
-            background:rgba(9, 1, 48, 0.5);
-            height: 100%;
-        }
-    </style>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/profile.css' %}">
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
 {% endblock %}
 
 {% block content %}
     {% load static %}
-    <div class="parallax-container">
-        <div class="row">
-            <div class="col s3" id="user-graphics">
-                <center><img src="{{ request.user.profile.avatar_url }}" alt="" class="circle responsive-img" style="height:200px; width:200px;"></center>
-                <center><h1 class="white-text" >{{ username }}</h1></center>
+        <div class="row" style="height: 85%">
+            <div class="col s3" id="user-graphics" style="height: 106%">
+                <center><br><img src="{{ user.profile.avatar_url }}" alt="" class="circle responsive-img" style="height:250px; width:250px;"></center>
+                <center><h5 class="white-text" style="font-size: 150%">{{ user.get_full_name }}</h5></center>
+                <center><i><h5 class="white-text" style="font-size: 100%">({{ user.username }})</h5></i></center>
+                <center><hr class="style14" style="margin-left: 6%; margin-right: 6%"></center><h5 class="white-text" style="font-size: 70%">
+                <i class="tiny material-icons" id="icon-white" style="margin-left: 6%; margin-right: 6%">email</i>{{ user.email }}</h5>
             </div>
-            <div class="col s9">
-                {{ request.user.profile }}
+            <div class="col s9" style="float: right">
+                <h2 style="color: black; font-family: Quicksand">{{ user.first_name}}'s Polls</h2>
+                {% for temp_question1, temp_question2 in questions %}
+                    <div class="row">
+                        <div class="col s12 m6">
+                            <div class="card loadable" id="loadable-{{ temp_question1.id }}" style="background-color:{{ temp_question1.card_color }}">
+                                <form class="response-form" method="POST" action="{% url 'respond' temp_question1.id %}">
+                                    {% csrf_token %}
+                                    {% if temp_question1.answered %}
+                                    <div class="card-content white-text" id="card-{{ temp_question1.id }}" disabled>
+                                    {% else %}
+                                    <div class="card-content white-text" id="card-{{ temp_question1.id }}">
+                                    {% endif %}
+                                        <input type="hidden" id="hidden-{{ temp_question1.id }}">
+                                        <span class="card-title">
+                                            <div class="row valign-wrapper">
+                                                <div class="col s2">
+                                                    <img src="{{ temp_question1.user_owner.profile.avatar_url }}" alt="" class="circle responsive-img"> <!-- notice the "circle" class -->
+                                                </div>
+                                                <div class="col s10">
+                                                    {{ temp_question1.user_owner.username }}
+                                                    <h6 class="grey-text text-lighten-2">{{ temp_question1.when_created }}</h6>
+                                                </div>
+                                            </div>
+                                        </span>
+                                        <p>{{ temp_question1.question_text }}</p>
+                                        {% for single_choice in temp_question1.Choices.all %}
+                                            <p>
+                                                {% if not temp_question1.multiple_answer %}
+                                                    <input type="radio" class="with-gap choice" id="choice-{{ single_choice.id }}" value="{{ single_choice.id }}" name="response"/>
+                                                {% else %}
+                                                    <input type="checkbox" class="filled-in choice" id="choice-{{ single_choice.id }}" value="{{ single_choice.id }}" name="response"/>
+                                                {% endif %}
+                                                <label for="choice-{{ single_choice.id }}" style="color: white;">{{ single_choice.choice_text }}</label>
+                                            </p>
+                                        {% endfor %}
+                                        <p class="error" id="response-error-{{ temp_question1.id }}" type="hidden">
+                                        {% if temp_question1.answered %}
+                                        Your response has been recorded
+                                        {% endif %}
+                                        </p>
+                                    </div>
+                                    <div class="card-action">
+                                        <div class="row">
+                                            {% if temp_question1.answered %}
+                                            <button class="waves-effect waves-light btn col l5 m4 s12 hoverable edit-button" id="edit-{{ temp_question1.id }}" type="button" onclick='edit(this.id)'><i class="material-icons left">edit</i>Edit</button>
+                                            {% else %}
+                                            <button class="waves-effect waves-light btn col l5 m4 s12 hoverable" id="submit-{{ temp_question1.id }}"><i class="material-icons left">assessment</i>Respond</button>
+                                            {% endif %}
+                                            <button class="waves-effect waves-light btn col l4 m4 s12 hoverable" type="button"><i class="material-icons left">visibility</i>View</button>
+                                            <div class="white-text col l3 m4 s12"><i class="material-icons left">supervisor_account</i><h6 id="number-{{ temp_question1.id }}">{{ temp_question1.respondent_count }}</h6></div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            {% if temp_question1.answered %}
+                            <script type="text/javascript">
+                                $("#loadable-{{ temp_question1.id }} #hidden-{{ temp_question1.id }}").load("{% url 'get_answers' temp_question1.id %}", function (response) {
+                                    jsonObjArr = $.parseJSON(response).answers;
+                                    for (var i = jsonObjArr.length - 1; i >= 0; i--) {
+                                        $("#choice-"+jsonObjArr[i]).prop('checked', true);
+                                    };
+                                });
+                            </script>
+                            {% endif %}
+                        </div>
+                        {% if temp_question2 %}
+                        <div class="col s12 m6">
+                            <div class="card loadable" id="loadable-{{ temp_question2.id }}" style="background-color:{{ temp_question2.card_color }}">
+                                <form class="response-form" method="POST" action="{% url 'respond' temp_question2.id %}">
+                                    {% csrf_token %}
+                                    {% if temp_question2.answered %}
+                                    <div class="card-content white-text" id="card-{{ temp_question2.id }}" disabled>
+                                    {% else %}
+                                    <div class="card-content white-text" id="card-{{ temp_question2.id }}">
+                                    {% endif %}
+                                        <input type="hidden" id="hidden-{{ temp_question2.id }}">
+                                        <span class="card-title">
+                                            <div class="row valign-wrapper">
+                                                <div class="col s2">
+                                                    <img src="{{ temp_question2.user_owner.profile.avatar_url }}" alt="" class="circle responsive-img"> <!-- notice the "circle" class -->
+                                                </div>
+                                                <div class="col s10">
+                                                    {{ temp_question2.user_owner.username }}
+                                                    <h6 class="grey-text text-lighten-2">{{ temp_question2.when_created }}</h6>
+                                                </div>
+                                            </div>
+                                        </span>
+                                        <p>{{ temp_question2.question_text }}</p>
+                                        {% for single_choice in temp_question2.Choices.all %}
+                                            <p>
+                                                {% if not temp_question2.multiple_answer %}
+                                                    <input type="radio" class="with-gap choice" id="choice-{{ single_choice.id }}" value="{{ single_choice.id }}" name="response"/>
+                                                {% else %}
+                                                    <input type="checkbox" class="filled-in choice" id="choice-{{ single_choice.id }}" value="{{ single_choice.id }}" name="response"/>
+                                                {% endif %}
+                                                <label for="choice-{{ single_choice.id }}" style="color: white;">{{ single_choice.choice_text }}</label>
+                                            </p>
+                                        {% endfor %}
+                                        <p class="error" id="response-error-{{ temp_question2.id }}" type="hidden">
+                                        {% if temp_question2.answered %}
+                                        Your response has been recorded
+                                        {% endif %}
+                                        </p>
+                                    </div>
+                                    <div class="card-action">
+                                        <div class="row">
+                                            {% if temp_question2.answered %}
+                                            <button class="waves-effect waves-light btn col l5 m4 s12 hoverable edit-button" id="edit-{{ temp_question2.id }}" type="button" onclick='edit(this.id)'><i class="material-icons left">edit</i>Edit</button>
+                                            {% else %}
+                                            <button class="waves-effect waves-light btn col l5 m4 s12 hoverable" id="submit-{{ temp_question2.id }}"><i class="material-icons left">assessment</i>Respond</button>
+                                            {% endif %}
+                                            <button class="waves-effect waves-light btn col l4 m4 s12 hoverable" type="button"><i class="material-icons left">visibility</i>View</button>
+                                            <div class="white-text col l3 m4 s12"><i class="material-icons left">supervisor_account</i><h6 id="number-{{ temp_question2.id }}">{{ temp_question2.respondent_count }}</h6></div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            {% if temp_question2.answered %}
+                            <script type="text/javascript">
+                                $("#loadable-{{ temp_question2.id }} #hidden-{{ temp_question2.id }}").load("{% url 'get_answers' temp_question2.id %}", function (response) {
+                                    jsonObjArr = $.parseJSON(response).answers;
+                                    for (var i = jsonObjArr.length - 1; i >= 0; i--) {
+                                        $("#choice-"+jsonObjArr[i]).prop('checked', true);
+                                    };
+                                });
+                            </script>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
             </div>
-
         </div>
-        
-        <div class="parallax"><img src="{% static 'img/book2.jpg' %}">
-        </div>
-    </div>
     
 {% endblock %}
 

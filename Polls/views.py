@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.http import JsonResponse
 from Polls.forms import UserInfoForm
 from django.db.models import Count
+from django.db.models import Exists, OuterRef
 from django.utils import timezone
 import datetime
 
@@ -14,8 +15,18 @@ def index(request):
 	if not request.user.is_authenticated :
 		return redirect(login_view)
 
+	user_on_question=Responses.objects.filter(
+		question=OuterRef('pk'),
+		user_owner__username=request.user.username
+	)
+
 	questions = []
-	question_objects = Survey_Questions.objects.all().annotate(respondent_count=Count('Responses__user_owner', distinct=True)).all().order_by("-when_created").filter(end_date__gt=timezone.now()).order_by("-when_created").prefetch_related('Choices')
+	question_objects = Survey_Questions.objects.all().annotate(
+		respondent_count=Count('Responses__user_owner', distinct=True)
+	).annotate(
+		answered=Exists(user_on_question)
+	).all().order_by("-when_created").filter(end_date__gt=timezone.now())
+
 	for question in zip(*[iter(question_objects)]*2):
 		questions.append(question)
 	if len(question_objects)%2 == 1 :
@@ -23,7 +34,8 @@ def index(request):
 
 	context = {
 		'username': request.user.username,
-		'questions': questions
+		'questions': questions,
+		'colors': Survey_Questions.COLOR_PALLETE
 	}
 
 	if request.method == "POST":
@@ -72,7 +84,9 @@ def index(request):
 			context['error'] = datetime.datetime.now()
 			return render(request, 'homepage.html', context=context)
 
-		question_object = Survey_Questions.objects.create(user_owner=request.user, question_text=question, multiple_answer=multiple, end_date=end_datetime)
+		color = request.POST.get('color')
+
+		question_object = Survey_Questions.objects.create(user_owner=request.user, question_text=question, multiple_answer=multiple, end_date=end_datetime, card_color=color)
 		for choice in choices:
 			Survey_Choices.objects.create(question=question_object, choice_text=choice)
 
@@ -141,9 +155,31 @@ def profile_view (request, username):
 	if not request.user.is_authenticated:
 		return redirect ('login')
 	user = get_object_or_404(User, username=username)
+	
+	user_on_question=Responses.objects.filter(
+		question=OuterRef('pk'),
+		user_owner__username=request.user.username
+	)
+
+	questions = []
+	question_objects = Survey_Questions.objects.all().annotate(
+		respondent_count=Count('Responses__user_owner', distinct=True)
+	).annotate(
+		answered=Exists(user_on_question)
+	).all().order_by("-when_created").filter(end_date__gt=timezone.now(), user_owner=user)
+
+	for question in zip(*[iter(question_objects)]*2):
+		questions.append(question)
+	if len(question_objects)%2 == 1 :
+		questions.append((question_objects[len(question_objects)-1], None))
+
 	context = {
-		'username' : user.username
+		'username': request.user.username,
+		'user': user,
+		'questions': questions,
+		'colors': Survey_Questions.COLOR_PALLETE
 	}
+
 	return render(request, 'profile.html', context=context)
 
 def validate_username(request):
@@ -180,48 +216,26 @@ def respond (request, question_id) :
 	if not request.user.is_authenticated:
 		return redirect(login_view)
 
+	question_responded.Responses.filter(user_owner=request.user).delete()
+
 	response = request.GET.getlist('response[]')
-	print (response)
+	for single_choice in response:
+		choice = Survey_Choices.objects.get(pk=single_choice)
+		Responses.objects.create(question=question_responded, choice=choice, user_owner=request.user)
 	data = {
 		'success': True,
 		'question': question_id,
-		'no_respondents': question_responded.no_of_respondents+1
+		'no_respondents': len(question_responded.Responses.values_list('user_owner', flat=True).distinct())
 	}
 	return JsonResponse(data)
-	# return redirect(reverse('profile', kwargs={'username': request.user.username}))
 
-	
+def get_answers (request, question_id) :
+	question_answered = get_object_or_404(Survey_Questions, id=question_id)
 
-# def post_poll(request):
-# 	if not request.user.is_authenticated:
-# 		return redirect ('login')
-# 	context = {}
-# 	if request.method == "POST":
-# 		question = request.POST.get('question')
-# 		context["question"] = question
-# 		try:
-# 			no_of_choices = int(request.POST.get('no_of_choices'))
-# 		except ValueError:
-# 			context['error'] = "Please include a question and 2 or more choices."
-# 			return render(request, "homepage.html", context=context)
-# 		if no_of_choices < 2:
-# 			context['error'] = "Please include a question and 2 or more choices."
-# 			return render(request, "homepage.html", context=context)
-# 		i = 0
-# 		choices = [None]*no_of_choices
-# 		while i < no_of_choices:
-# 			name_str = 'id' + str(i)
-# 			choices[i] = request.POST.get(name_str)
-# 			i += 1
-# 		multiple = request.POST.get("multiple")
-# 		multiple = True if multiple == "on" else False
-# 		end_date = datetime.datetime.strptime(request.POST.get("end_date"), "%d %B, %Y").date()
-# 		end_time = datetime.datetime.strptime(request.POST.get("end_time"), "%I:%M%p").time()
-# 		end_datetime = datetime.datetime.combine(end_date, end_time)
-# 		if end_datetime < datetime.datetime.now():
-# 			context['error'] = datetime.datetime.now()
-# 			return render(request, 'homepage.html', context=context)
-# 		question_object = Survey_Questions.objects.create(user_owner=request.user, question_text=question, multiple_answer=multiple, end_date=end_datetime)
-# 		for choice in choices:
-# 			Survey_Choices.objects.create(question=question_object, choice_text=choice)
-# 	return redirect('index')
+	if not request.user.is_authenticated:
+		return redirect(login_view)
+
+	data = {
+		'answers': list(question_answered.Responses.filter(user_owner__username=request.user.username).values_list('choice_id', flat=True))
+	}
+	return JsonResponse(data)

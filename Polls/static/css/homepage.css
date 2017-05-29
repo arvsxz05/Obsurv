@@ -1,0 +1,43 @@
+.card-content[disabled] {
+	opacity: 0.5;
+	pointer-events: none;
+	cursor: default;
+}
+.error {
+    color: red;
+    font-size: 15px;
+}
+
+#display {
+	width: 150%;
+	height: 30%;
+	margin-left: 1%;
+	background-color: #D98880
+}
+
+.palette{
+    width: 10px;    /*The width Must be equal to the height*/
+    height: 10px;
+    border-radius: 50%;
+    -moz-border-radius: 50%;
+    -webkit-border-radius: 50%;
+}
+
+#apnd div { 
+    height: 30px; 
+    width: 30px; 
+    border: 1px solid white; 
+    margin-left: 5px; 
+    float: left; /*Here you can also use display: inline-block instead of float:left*/
+    background: orange; 
+}
+
+::-webkit-scrollbar { 
+    display: none; 
+}
+
+.palette:hover {
+	top: -5px;
+	position: relative;
+
+}

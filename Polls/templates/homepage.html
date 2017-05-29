@@ -1,17 +1,9 @@
 {% extends "base.html" %}
 
 {% block styles %}
-    <style type="text/css">
-    	.card-content[disabled] {
-    		opacity: 0.5;
-    		pointer-events: none;
-    		cursor: default;
-    	}
-        .error {
-            color: red;
-            font-size: 15px;
-        }
-    </style>
+	{% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/homepage.css' %}">
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -50,6 +42,37 @@
 	   				</p>
 	   				
 	   				 <span class="red-text">{{ error }}</span>
+	   				 <br>
+	   				 <p>CARD COLOR:</p>
+	   				 <div class="row">
+                    	<div id="apnd">
+                    		{% for pos_color, trash in colors %}
+                    		<div class="palette" style="background-color: {{ pos_color }}; margin-left: 10px"></div>
+                    		{% endfor %}
+						  	<input type="hidden" id="pseudo" name="color" value="#D98880">
+						</div>
+						<br><br>
+						<div class="input-field col s6">
+	                    	<div id="display" class="row container">
+								<div class="card-content white-text">
+									<span class="card-title">
+										<div class="row valign-wrapper">
+											<div class="col s2">
+									        	<img src="{{ user.profile.avatar_url }}" alt="" class="circle responsive-img"> 
+									        </div>
+									        <div class="col s10">
+												{{ username }}
+											</div>
+										</div>
+									</span>
+								</div>
+	                    	</div>
+                    	</div>
+                    	
+	   				</div>
+	   				<div class="chips chips-placeholder">
+	   				</div>
+
 			    </div>
 			    <div class="card-action">
 					<button class="waves-effect waves-light btn"><i class="material-icons left">assessment</i>Create Poll</button>
@@ -61,10 +84,15 @@
 	{% for temp_question1, temp_question2 in questions %}
         <div class="row">
 			<div class="col s12 m6">
-				<div class="card blue-grey darken-1" disabled>
+				<div class="card loadable" id="loadable-{{ temp_question1.id }}" style="background-color:{{ temp_question1.card_color }}">
 					<form class="response-form" method="POST" action="{% url 'respond' temp_question1.id %}">
 						{% csrf_token %}
+						{% if temp_question1.answered %}
+						<div class="card-content white-text" id="card-{{ temp_question1.id }}" disabled>
+						{% else %}
 						<div class="card-content white-text" id="card-{{ temp_question1.id }}">
+						{% endif %}
+							<input type="hidden" id="hidden-{{ temp_question1.id }}">
 							<span class="card-title">
 								<div class="row valign-wrapper">
 									<div class="col s2">
@@ -80,31 +108,54 @@
 							{% for single_choice in temp_question1.Choices.all %}
 								<p>
 									{% if not temp_question1.multiple_answer %}
-										<input type="radio" class="with-gap" id="{{ single_choice.id }}" value="{{ single_choice.id }}" name="response"/>
+										<input type="radio" class="with-gap choice" id="choice-{{ single_choice.id }}" value="{{ single_choice.id }}" name="response"/>
 									{% else %}
-										<input type="checkbox" class="filled-in" id="{{ single_choice.id }}" value="{{ single_choice.id }}" name="response"/>
+										<input type="checkbox" class="filled-in choice" id="choice-{{ single_choice.id }}" value="{{ single_choice.id }}" name="response"/>
 									{% endif %}
-									<label for="{{ single_choice.id }}">{{ single_choice.choice_text }}</label>
+									<label for="choice-{{ single_choice.id }}" style="color: white;">{{ single_choice.choice_text }}</label>
 							    </p>
 							{% endfor %}
-							<p class="error" id="response-error-{{ temp_question1.id }}" type="hidden"></p>
+							<p class="error" id="response-error-{{ temp_question1.id }}" type="hidden">
+							{% if temp_question1.answered %}
+							Your response has been recorded
+							{% endif %}
+							</p>
 						</div>
 						<div class="card-action">
 							<div class="row">
-								<button class="waves-effect waves-light btn col l5 m4 s12 hoverable"><i class="material-icons left">assessment</i>Respond</button>
+								{% if temp_question1.answered %}
+								<button class="waves-effect waves-light btn col l5 m4 s12 hoverable edit-button" id="edit-{{ temp_question1.id }}" type="button" onclick='edit(this.id)'><i class="material-icons left">edit</i>Edit</button>
+								{% else %}
+								<button class="waves-effect waves-light btn col l5 m4 s12 hoverable" id="submit-{{ temp_question1.id }}"><i class="material-icons left">assessment</i>Respond</button>
+								{% endif %}
 								<button class="waves-effect waves-light btn col l4 m4 s12 hoverable" type="button"><i class="material-icons left">visibility</i>View</button>
 								<div class="white-text col l3 m4 s12"><i class="material-icons left">supervisor_account</i><h6 id="number-{{ temp_question1.id }}">{{ temp_question1.respondent_count }}</h6></div>
 							</div>
 						</div>
 					</form>
 				</div>
+				{% if temp_question1.answered %}
+				<script type="text/javascript">
+					$("#loadable-{{ temp_question1.id }} #hidden-{{ temp_question1.id }}").load("{% url 'get_answers' temp_question1.id %}", function (response) {
+						jsonObjArr = $.parseJSON(response).answers;
+						for (var i = jsonObjArr.length - 1; i >= 0; i--) {
+							$("#choice-"+jsonObjArr[i]).prop('checked', true);
+						};
+					});
+				</script>
+				{% endif %}
 			</div>
 			{% if temp_question2 %}
 			<div class="col s12 m6">
-				<div class="card blue-grey darken-1">
+				<div class="card loadable" id="loadable-{{ temp_question2.id }}" style="background-color:{{ temp_question2.card_color }}">
 					<form class="response-form" method="POST" action="{% url 'respond' temp_question2.id %}">
 						{% csrf_token %}
+						{% if temp_question2.answered %}
+						<div class="card-content white-text" id="card-{{ temp_question2.id }}" disabled>
+						{% else %}
 						<div class="card-content white-text" id="card-{{ temp_question2.id }}">
+						{% endif %}
+							<input type="hidden" id="hidden-{{ temp_question2.id }}">
 							<span class="card-title">
 								<div class="row valign-wrapper">
 									<div class="col s2">
@@ -120,24 +171,42 @@
 							{% for single_choice in temp_question2.Choices.all %}
 								<p>
 									{% if not temp_question2.multiple_answer %}
-										<input type="radio" class="with-gap" id="{{ single_choice.id }}" value="{{ single_choice.id }}" name="response"/>
+										<input type="radio" class="with-gap choice" id="choice-{{ single_choice.id }}" value="{{ single_choice.id }}" name="response"/>
 									{% else %}
-										<input type="checkbox" class="filled-in" id="{{ single_choice.id }}" value="{{ single_choice.id }}" name="response"/>
+										<input type="checkbox" class="filled-in choice" id="choice-{{ single_choice.id }}" value="{{ single_choice.id }}" name="response"/>
 									{% endif %}
-									<label for="{{ single_choice.id }}">{{ single_choice.choice_text }}</label>
+									<label for="choice-{{ single_choice.id }}" style="color: white;">{{ single_choice.choice_text }}</label>
 							    </p>
 							{% endfor %}
-							<p class="error" id="response-error-{{ temp_question2.id }}" type="hidden"></p>
+							<p class="error" id="response-error-{{ temp_question2.id }}" type="hidden">
+							{% if temp_question2.answered %}
+							Your response has been recorded
+							{% endif %}
+							</p>
 						</div>
 						<div class="card-action">
 							<div class="row">
-								<button class="waves-effect waves-light btn col l5 m4 s12 hoverable"><i class="material-icons left">assessment</i>Respond</button>
+								{% if temp_question2.answered %}
+								<button class="waves-effect waves-light btn col l5 m4 s12 hoverable edit-button" id="edit-{{ temp_question2.id }}" type="button" onclick='edit(this.id)'><i class="material-icons left">edit</i>Edit</button>
+								{% else %}
+								<button class="waves-effect waves-light btn col l5 m4 s12 hoverable" id="submit-{{ temp_question2.id }}"><i class="material-icons left">assessment</i>Respond</button>
+								{% endif %}
 								<button class="waves-effect waves-light btn col l4 m4 s12 hoverable" type="button"><i class="material-icons left">visibility</i>View</button>
 								<div class="white-text col l3 m4 s12"><i class="material-icons left">supervisor_account</i><h6 id="number-{{ temp_question2.id }}">{{ temp_question2.respondent_count }}</h6></div>
 							</div>
 						</div>
 					</form>
 				</div>
+				{% if temp_question2.answered %}
+				<script type="text/javascript">
+					$("#loadable-{{ temp_question2.id }} #hidden-{{ temp_question2.id }}").load("{% url 'get_answers' temp_question2.id %}", function (response) {
+						jsonObjArr = $.parseJSON(response).answers;
+						for (var i = jsonObjArr.length - 1; i >= 0; i--) {
+							$("#choice-"+jsonObjArr[i]).prop('checked', true);
+						};
+					});
+				</script>
+				{% endif %}
 			</div>
 			{% endif %}
     	</div>
@@ -149,44 +218,27 @@
 	{% load static %}
 	<script type="text/javascript" src="{% static 'js/home.js' %}"></script>
 	<script type="text/javascript">
-		$(function(ready){
-		    $(".response-form").submit(function (event) {
-		    	event.preventDefault();
-		        // var response = $(this).find('input[name=response]').val();
-		        var allVals = [];
-				$(this).find('input[name=response]:checked').each(function() {
-					allVals.push($(this).val());
-				});
-			    console.log(allVals);
-			    if(allVals.length == 0) {
-			    	$(this).find(".error").show();
-		            $(this).find(".error").text('Choose an answer to respond!');
-		            // console.log($(this).children(".error").val());
-		        } else {
-		            $("#response-error").hide();
+		var color = '';
+		$('.palette').click(function() {
+		    var x = $(this).css('backgroundColor');
+		    hexc(x);
+		    // alert(color);
+		    var display = document.getElementById("display");
+			display.style.background = color;
 
-			        $.ajax({
-			            url: $(this).attr('action'),
-			            data: {
-			                'response': allVals
-			            },
-			            dataType: 'json',
-			            success: function (data) {
-			            	suffix = data.question;
-			                if (!data.success) {
-			                    $("#response-error-"+suffix).show();
-			                    $("#response-error-"+suffix).text('Something went wrong...');
-			                } else {
-			                	console.log(data.no_respondents);
-			                    $("#response-error-"+suffix).show();
-			                    $("#response-error-"+suffix).text('Your response has been recorded.');
-			                    $("#card-"+suffix).attr("disabled", true);
-			                    $("#number-"+suffix).text(data.no_respondents);
-			                }
-			            }
-			        });
-			    }
-		    });
-		});
+			var value = document.getElementById("pseudo");
+			pseudo.value = color;
+		})
+
+		function hexc(colorval) {
+		    var parts = colorval.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+		    delete(parts[0]);
+		    for (var i = 1; i <= 3; ++i) {
+		        parts[i] = parseInt(parts[i]).toString(16);
+		        if (parts[i].length == 1) parts[i] = '0' + parts[i];
+		    }
+		    color = '#' + parts.join('');
+		}
+
 	</script>
 {% endblock %}
