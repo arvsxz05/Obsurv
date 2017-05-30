@@ -10,9 +10,6 @@ $('.timepicker').pickatime({
 	autoclose: false,
 	vibrate: true // vibrate the device when dragging clock hand
 });
-$('.chips-placeholder').material_chip({
-	secondaryPlaceholder: '+ Add Tags',
-});
 function blurFunction () {
 	var choices_space = document.getElementById("choices_space");
 	var list_items = choices_space.children;
