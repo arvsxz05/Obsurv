@@ -26,4 +26,5 @@ urlpatterns = [
     url(r'^polls/', include('Polls.urls')),
     url(r'^profile/', include('Profile.urls')),
     url(r'^(?P<page_num>\d*)?$', views.index, name='index'),
+    url(r'^404/$', page_not_found, name="page_404"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
