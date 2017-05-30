@@ -6,15 +6,15 @@
 
 2. Post Question. This is the main feature of the web app that let's the user post questions. The user can add questions in no more than 200 characters. After which, the user is required to add choices. In the event that the user only puts 1 choice, he/she is prompted with a warning and is aaked for another choice.
 
-A deadline can be set for the question. Once the deadline is met, the question can no longer be answered by anyone. Another feature of the add post is to add a color to your post similar to facebook.
+3. A deadline can be set for the question. Once the deadline is met, the question can no longer be answered by anyone. Another feature of the add post is to add a color to your post similar to facebook.
 
-3. Edit and View Response. Once a user has locked in his/her response, he/she may have the option to edit it and change his/her answer. He/she also has the option to view the result wherein he/she is redirected to a new page with the question and the responses.
+4. Edit and View Response. Once a user has locked in his/her response, he/she may have the option to edit it and change his/her answer. He/she also has the option to view the result wherein he/she is redirected to a new page with the question and the responses.
 
-4. Edit profile. A user is given the choice to edit his/her avatar, email, first name and last name. The Profile can be viewed by clicking the profile in the navbar and then click "View"
+5. Edit profile. A user is given the choice to edit his/her avatar, email, first name and last name. The Profile can be viewed by clicking the profile in the navbar and then click "View"
 
 ## Instructions:
-To start your Obsurv journey, create an account and log-in. 
+ - To start your Obsurv journey, create an account and log-in. 
 
-To View your profile, click profile and then view. To edit, click edit.
+ - To View your profile, click profile and then view. To edit, click edit.
 
-To post a question, go to home and post a question. Once you are done, click submit poll.
+ - To post a question, go to home and post a question. Once you are done, click submit poll.
