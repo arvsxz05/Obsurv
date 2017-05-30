@@ -4,11 +4,13 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.db.models import Exists, OuterRef
 from django.utils import timezone
+from django.core.paginator import Paginator
+import datetime
 
 from Polls.models import Survey_Questions, Survey_Choices, Responses
 from Profile.models import User_Profile
 
-def index(request):
+def index(request, page_num):
 	if not request.user.is_authenticated :
 		return redirect(login_view)
 
@@ -24,6 +26,18 @@ def index(request):
 		answered=Exists(user_on_question)
 	).all().order_by("-when_created").filter(end_date__gt=timezone.now())
 
+	p = Paginator(question_objects, 4)
+	try:
+		page_num = int(page_num)
+	except ValueError:
+		page_num = 1
+	if page_num:
+		if page_num > p.num_pages and page_num < p.num_pages:
+			return redirect('page_404')
+		question_objects = p.page(page_num)
+	else:
+		question_objects = p.page(1)
+
 	for question in zip(*[iter(question_objects)]*2):
 		questions.append(question)
 	if len(question_objects)%2 == 1 :
@@ -32,7 +46,9 @@ def index(request):
 	context = {
 		'username': request.user.username,
 		'questions': questions,
-		'colors': Survey_Questions.COLOR_PALLETE
+		'colors': Survey_Questions.COLOR_PALLETE,
+		'pages': question_objects,
+		'current': page_num
 	}
 
 	if request.method == "POST":

@@ -6,7 +6,7 @@
             <ul class="right hide-on-med-and-down">
                 {% if request.user.is_authenticated %}
                     <li><a class="dropdown-button" href="#!" data-activates="dropdown1">Profile</a></li>
-                    <li><a class="waves-effect" href="{% url 'index' %}">Home</a></li>
+                    <li><a class="waves-effect" href="{% url 'index' 1 %}">Home</a></li>
                     <li><a class="waves-effect" href="{% url 'logout' %}">Logout</a></li>
                 {% endif %}
                 {% if not request.user.is_authenticated %}
@@ -25,7 +25,7 @@
     {% if request.user.is_authenticated %}
         <li><a class="waves-effect" href="{% url 'profile' username %}"><i class="material-icons">perm_identity</i> View Profile</a></li>
         <li><a class="waves-effect" href="{% url 'edit' username %}"><i class="material-icons">info</i> Edit Profile</a></li>
-        <li><a class="waves-effect" href="{% url 'index' %}"><i class="material-icons">assessment</i> Home</a></li>
+        <li><a class="waves-effect" href="{% url 'index' 1 %}"><i class="material-icons">assessment</i> Home</a></li>
         <li><a class="waves-effect" href="{% url 'logout' %}"><i class="material-icons">lock</i> Logout</a></li>
     {% endif %}
     {% if not request.user.is_authenticated %}
