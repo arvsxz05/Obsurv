@@ -26,7 +26,7 @@ def index(request, page_num):
 		answered=Exists(user_on_question)
 	).all().order_by("-when_created").filter(end_date__gt=timezone.now())
 
-	p = Paginator(question_objects, 4)
+	p = Paginator(question_objects, 6)
 	try:
 		page_num = int(page_num)
 	except ValueError:
@@ -48,7 +48,6 @@ def index(request, page_num):
 		'questions': questions,
 		'colors': Survey_Questions.COLOR_PALLETE,
 		'pages': question_objects,
-		'current': page_num
 	}
 
 	if request.method == "POST":
