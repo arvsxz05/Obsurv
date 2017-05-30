@@ -4,20 +4,28 @@
     {% load static %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/profile.css' %}">
     <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <style type="text/css">
+        .below { 
+          z-index: 99;
+        }
+    </style>
 {% endblock %}
+
 
 {% block content %}
     {% load static %}
-        <div class="row" style="height: 85%">
-            <div class="col s3" id="user-graphics" style="height: 106%">
-                <center><br><img src="{{ user.profile.avatar_url }}" alt="" class="circle responsive-img" style="height:250px; width:250px;"></center>
-                <center><h5 class="white-text" style="font-size: 150%">{{ user.get_full_name }}</h5></center>
-                <center><i><h5 class="white-text" style="font-size: 100%">({{ user.username }})</h5></i></center>
-                <center><hr class="style14" style="margin-left: 6%; margin-right: 6%"></center><h5 class="white-text" style="font-size: 70%">
-                <i class="tiny material-icons" id="icon-white" style="margin-left: 6%; margin-right: 6%">email</i>{{ user.email }}</h5>
-            </div>
-            <div class="col s9" style="float: right">
-                <h2 style="color: black; font-family: Quicksand">{{ user.first_name}}'s Polls</h2>
+        <ul id="slide-out" class="side-nav fixed grey darken-1 below">
+            <br><br><br>
+            <center><li><img src="{{ user.profile.avatar_url }}" alt="" class="circle responsive-img" style="height:250px; width:250px;"></li></center>
+            <center><li><h5 class="white-text" style="font-size: 150%">{{ user.get_full_name }}</h5></li></center>
+            <center><li><i><h5 class="white-text" style="font-size: 100%">({{ user.username }})</h5></i></li></center>
+            <center><li><hr class="style14" style="margin-left: 6%; margin-right: 6%"></center><h5 class="white-text" style="font-size: 70%">
+                    <i class="tiny material-icons" id="icon-white" style="margin-left: 6%; margin-right: 6%">email</i>{{ user.email }}</h5></li>
+        </ul>
+        <a href="#" data-activates="slide-out" class="button-collapse" style="background-color:#2980B9"><i class="material-icons white-text">menu</i></a>
+        <div class="row">
+            <div class="col l9 m12" style="float: right">
+                <h2 style="color: black; font-family: Quicksand">{{ user.first_name }}'s Polls</h2>
                 {% for temp_question1, temp_question2 in questions %}
                     <div class="row">
                         <div class="col s12 m6">
@@ -150,6 +158,15 @@
                 {% endfor %}
             </div>
         </div>
+        <input type="hidden" id="refreshed" value="no">
+
+        <script type="text/javascript">
+            onload=function(){
+                var e=document.getElementById("refreshed");
+                if(e.value=="no")e.value="yes";
+                else{e.value="no";location.reload();}
+            }
+        </script>
     
 {% endblock %}
 

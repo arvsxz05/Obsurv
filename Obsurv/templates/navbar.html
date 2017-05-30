@@ -1,8 +1,9 @@
+{% load static %}
 <div class="navbar-fixed">
     <nav>
         <div class="nav-wrapper">
-            <a href="#" data-activates="mobile-demo" class="button-collapse"><i class="material-icons">view_headline</i></a>
-            <!-- <a href="#" class="brand-logo right thin" title="bcgraphixx">Page Title</a> -->
+            <div class="container"><a href="#" data-activates="mobile-demo" class="button-collapse"><i class="material-icons">view_headline</i></a>
+            <a class="brand-logo" title="bcgraphixx">Obsurv</a>
             <ul class="right hide-on-med-and-down">
                 {% if request.user.is_authenticated %}
                     <li><a class="dropdown-button" href="#!" data-activates="dropdown1">Profile</a></li>
@@ -13,6 +14,7 @@
                     <li><a class="waves-effect" href="{% url 'login' %}">Login</a></li>
                 {% endif %}
             </ul>
+            </div>
         </div>
     </nav>
     <ul id="dropdown1" class="dropdown-content">

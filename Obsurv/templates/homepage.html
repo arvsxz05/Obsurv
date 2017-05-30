@@ -220,7 +220,7 @@
 			{% endif %}
 			{% for i in pages.paginator.page_range %}
 				{% if pages.number == i %}
-				<li class="active"><a>{{ i }}</a></li>
+				<li class="active blue darken-3"><a>{{ i }}</a></li>
 				{% else %}
 				<li class="waves-effect"><a href="{% url 'index' i %}">{{ i }}</a></li>
 				{% endif %}
@@ -233,6 +233,15 @@
 		</ul></center>
 		{% endif %}
     </div>
+    <input type="hidden" id="refreshed" value="no">
+
+	<script type="text/javascript">
+		onload=function(){
+			var e=document.getElementById("refreshed");
+			if(e.value=="no")e.value="yes";
+			else{e.value="no";location.reload();}
+		}
+	</script>
 {% endblock %}
 
 {% block js %}

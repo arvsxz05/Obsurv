@@ -3,8 +3,6 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 
-# Create your models here.
-
 class Survey_Questions(models.Model) :
 	COLOR_PALLETE = (
 	    ('#D98880', 'red'),
@@ -36,6 +34,10 @@ class Survey_Questions(models.Model) :
 
 	def __str__(self):
 		return self.question_text
+
+	@property
+	def total_responses(self):
+		return len(self.Responses.values_list('user_owner', flat=True).distinct())
 
 class Survey_Choices(models.Model) :
 	question = models.ForeignKey(Survey_Questions, related_name='Choices')

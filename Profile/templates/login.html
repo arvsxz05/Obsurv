@@ -3,19 +3,41 @@
 {% block styles %}
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/login.css' %}">
+    <style type="text/css">
+        .slider { 
+          z-index: 0;
+        }
+    </style>
 {% endblock %}
 
 {% block nav %}{% endblock %}
 
 {% block content %}
     <div id="parent">
-        <div id="wide">
-            <div class="logo-page">
-                <div class="logo-content">
-                    <img src="{% static 'img/logo.png' %}"><br>
-                    Create <strong>surveys</strong> and <strong>polls</strong> that match your <strong>budget</strong> and <strong>vision</strong>. <br><strong><i>Obsurv</i></strong> and meet new people.
+        <div class="slider fullscreen" id="wide">
+            <ul class="slides">
+            <li>
+                <img src="{% static 'img/Poll-Question.jpg' %}">
+                <div class="caption center-align">
+                    <h3 class="black-text">Ask Questions!</h3>
+                    <h5 class="light grey-text text-darken-3">Its free and its huge.</h5>
                 </div>
-            </div>
+            </li>
+            <li>
+                <img src="{% static 'img/Poll-Question2.jpg' %}">
+                <div class="caption right-align">
+                    <h3 class="grey-text">Observe Insights!</h3>
+                    <h5 class="light grey-text text-darken-3">Get to know people's opinion.</h5>
+                </div>
+            </li>
+            <li>
+                <img src="{% static 'img/Poll-Question3.jpg' %}">
+                <div class="caption center-align">
+                    <h3 class="black-text">Get to know People!</h3>
+                    <h5 class="light grey-text text-lighten-3">Have everybody to depend on.</h5>
+                </div>
+            </li>
+            </ul>
         </div>
         <div id="narrow">
             <div class="login-page">
@@ -38,7 +60,7 @@
                         <input type="password" placeholder="Password" name="password" required/>
                         <input type="password" placeholder="Confirm Password" name="confirm" required/>
                         <input type="text" placeholder="E-mail Address" name="email" required/>
-                        <p class="error" id="signup-error" type="hidden"></p>
+                        <p class="error" id="signup-error" type="hidden">{{ sign_error_message }}</p>
                         <button>create</button>
                         <!-- <p class="message">Already registered? <a href="{% url 'login' %}">Sign In</a></p> -->
                     </form>
@@ -74,5 +96,10 @@
             });
         });
     });
+    </script>
+    <script>
+       $(document).ready(function () {
+           $('.slider').slider({full_width: true});
+       });
     </script>
 {% endblock %}

@@ -12,7 +12,7 @@ from Profile.models import User_Profile
 
 def index(request, page_num):
 	if not request.user.is_authenticated :
-		return redirect(login_view)
+		return redirect("logout")
 
 	user_on_question=Responses.objects.filter(
 		question=OuterRef('pk'),

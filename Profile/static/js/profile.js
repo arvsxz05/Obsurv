@@ -1,3 +1,5 @@
+$(".button-collapse").sideNav();
+
 $(".response-form").submit(function (event) {
 	event.preventDefault();
     // var response = $(this).find('input[name=response]').val();

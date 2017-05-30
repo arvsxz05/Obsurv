@@ -13,7 +13,7 @@ from Profile.models import User_Profile
 def signup_view(request):
 	context = {
 		'type': 0,
-		'error_message': ""
+		'sign_error_message': ""
 	}
 	if request.method == 'POST':
 		username = request.POST['username']
@@ -24,13 +24,13 @@ def signup_view(request):
 		confirm = request.POST['confirm']
 
 		if User.objects.filter(username=username).exists():
-			context['error_message'] = "Username already exists"
+			context['sign_error_message'] = "Username already exists"
 		if password != confirm :
-			context['error_message'] += " Passwords doesnt match"
+			context['sign_error_message'] += " Passwords doesnt match"
 		context['first_name'] = first_name
 		context['last_name'] = last_name
 
-		if context['error_message'] is "" :
+		if context['sign_error_message'] is "" :
 			user = User.objects.create_user(username=username, email=email, password=password)
 			user.first_name = first_name
 			user.last_name = last_name
