@@ -4,7 +4,6 @@ from django.contrib.auth.models import User
 
 from .models import User_Profile
 
-
 @receiver(post_save, sender=User)
 def create_userprofile(created, instance, **kwargs):
     """ Create a userprofile for every new user """

@@ -15,8 +15,16 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
+from django.conf.urls.static import static
+from django.views.defaults import page_not_found
+from django.conf import settings
+
+from . import views
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^', include('Polls.urls')),
-]
+    url(r'^polls/', include('Polls.urls')),
+    url(r'^profile/', include('Profile.urls')),
+    url(r'^$', views.index, name='index'),
+    url(r'^404/$', page_not_found, name="page_404"),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block styles %}
+
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="card" style="background-color:{{ question.card_color }}">
+            <form autocomplete="off" id="myForm2">
+                <div class="card-content white-text">
+                    <span class="card-title">
+                        <div class="row valign-wrapper">
+                            <div class="col s2">
+                                <img src="{{ question.user_owner.profile.avatar_url }}" alt="" class="circle responsive-img">
+                            </div>
+                            <div class="col s10">
+                                {{ question.user_owner.username }}
+                                <h6 class="grey-text text-lighten-2">{{ question.when_created }}</h6>
+                            </div>
+                        </div>
+                    </span>
+                    <p>{{ question.question_text }}</p><br>
+
+                    <!-- ARI KA MAGSUGOD UG RETRIEVE SA CHOICES !-->
+
+                    {% for single_choice in choices %}
+                        <p>
+                            <label for="{{ single_choice.pk }}" style="font-size: 15px"><p style="color: white">{{ single_choice.choice_text }}</p></label> <!-- choices !-->
+                        </p>
+                        <p>
+                            <div style="width: {{ single_choice.percent_responses }}%;" class="red darken-4"> <p>{{ single_choice.percent_responses }}</p></div> <!-- retrieve value here !-->
+
+                            <!-- div na ang sa babaw, kanang width sa div kay mao na dapat ang value niya divided by the total value mao nang mu % sya !-->
+
+                            <!-- then kanang 50% diha na text lang after sa line 36 kay predefined na na. dapat na sya ilisan sa choice_votes / total responses para dili predefined !-->
+                        </p>
+                    {% endfor %}
+
+
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    {% load static %}
+{% endblock %}

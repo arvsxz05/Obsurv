@@ -2,7 +2,6 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.utils import timezone
-from django.contrib.staticfiles.templatetags.staticfiles import static
 
 # Create your models here.
 
@@ -45,26 +44,17 @@ class Survey_Choices(models.Model) :
 	def __str__(self):
 		return self.choice_text
 
+	@property
+	def percent_responses(self):
+		total_responses = len(self.question.Responses.values_list('user_owner', flat=True).distinct())
+		if total_responses == 0:
+			return 0;
+		return round(len(self.Responses.all()) / total_responses * 100.00, 2)
+
 class Responses(models.Model) :
 	question = models.ForeignKey(Survey_Questions, related_name='Responses')
-	choice = models.ForeignKey(Survey_Choices)
+	choice = models.ForeignKey(Survey_Choices, related_name='Responses')
 	user_owner = models.ForeignKey(User, related_name='Responses')
 
 	def __str__(self):
 		return self.user_owner.username + " : " + self.question.question_text + " : " + self.choice.choice_text
-
-def avatar_upload_path(instance, filename):
-    return './storage/{}_{}'.format(instance.owner.username, filename)
-
-class User_Profile(models.Model) :
-	owner = models.OneToOneField(User, related_name='profile')
-	avatar = models.FileField(upload_to=avatar_upload_path, blank=True)
-
-	@property
-	def avatar_url(self):
-		if self.avatar:
-			return self.avatar.url
-		return static('img/unknown.gif')
-
-	def __str__(self):
-		return self.owner.username

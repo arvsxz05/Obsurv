@@ -65,7 +65,7 @@
                                             {% else %}
                                             <button class="waves-effect waves-light btn col l5 m4 s12 hoverable" id="submit-{{ temp_question1.id }}"><i class="material-icons left">assessment</i>Respond</button>
                                             {% endif %}
-                                            <button class="waves-effect waves-light btn col l4 m4 s12 hoverable" type="button"><i class="material-icons left">visibility</i>View</button>
+                                            <a href="{% url 'question' temp_question1.id %}"><button class="waves-effect waves-light btn col l4 m4 s12 hoverable" type="button"><i class="material-icons left">visibility</i>View</button></a>
                                             <div class="white-text col l3 m4 s12"><i class="material-icons left">supervisor_account</i><h6 id="number-{{ temp_question1.id }}">{{ temp_question1.respondent_count }}</h6></div>
                                         </div>
                                     </div>
@@ -128,7 +128,7 @@
                                             {% else %}
                                             <button class="waves-effect waves-light btn col l5 m4 s12 hoverable" id="submit-{{ temp_question2.id }}"><i class="material-icons left">assessment</i>Respond</button>
                                             {% endif %}
-                                            <button class="waves-effect waves-light btn col l4 m4 s12 hoverable" type="button"><i class="material-icons left">visibility</i>View</button>
+                                            <a href="{% url 'question' temp_question2.id %}"><button class="waves-effect waves-light btn col l4 m4 s12 hoverable" type="button"><i class="material-icons left">visibility</i>View</button></a>
                                             <div class="white-text col l3 m4 s12"><i class="material-icons left">supervisor_account</i><h6 id="number-{{ temp_question2.id }}">{{ temp_question2.respondent_count }}</h6></div>
                                         </div>
                                     </div>

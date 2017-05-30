@@ -51,4 +51,28 @@
 {% block js %}
     {% load static %}
     <script type="text/javascript" src="{% static 'js/login.js' %}"></script>
-    {% endblock %}
+    <script type="text/javascript">
+        $(function(ready){
+        $("#username1").change(function () {
+            var username = $(this).val();
+            console.log("here");
+
+            $.ajax({
+                url: "{% url 'validate_username' %}",
+                data: {
+                    'username': username
+                },
+                dataType: 'json',
+                success: function (data) {
+                    if (data.is_taken) {
+                        $("#signup-error").show();
+                        $("#signup-error").text('Username already exist!')
+                    } else {
+                        $("#signup-error").hide();
+                    }
+                }
+            });
+        });
+    });
+    </script>
+{% endblock %}
